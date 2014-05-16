@@ -1,5 +1,6 @@
 package io.simples.threehd;
 
+import android.app.AlarmManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -11,61 +12,43 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.Toast;
+
+import java.util.Calendar;
+
+import io.simples.threehd.receiver.AlarmReceiver;
 
 
 public class MainActivity extends ActionBarActivity {
 
+    private static final int REQUEST_CODE = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
 
-        Button scheduleAlertBtn = (Button) findViewById(R.id.scheduleAlertBtn);
+        final Button scheduleAlertBtn = (Button) findViewById(R.id.scheduleAlertBtn);
         scheduleAlertBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(MainActivity.this)
-                        .setSmallIcon(R.drawable.ic_launcher)
-                        .setContentTitle("My notification")
-                        .setContentText("Open this...");
+                
+                Calendar calendar = Calendar.getInstance();
+                calendar.add(Calendar.SECOND, 5);
+                
+                Intent intent = new Intent(getApplicationContext(), AlarmReceiver.class);
+                PendingIntent sender = PendingIntent.getBroadcast(getApplicationContext(), REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-                Intent resultIntent = new Intent(MainActivity.this, MainActivity.class);
+                AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+                alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), sender);
 
-                TaskStackBuilder stackBuilder = TaskStackBuilder.create(MainActivity.this);
-
-                stackBuilder.addParentStack(MainActivity.class);
-                stackBuilder.addNextIntent(resultIntent);
-
-                PendingIntent resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-
-                mBuilder.setContentIntent(resultPendingIntent);
-
-                NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
-                mNotificationManager.notify(0, mBuilder.build());
+                Toast.makeText(getApplicationContext(), "Alarme agendado p/ 3horas", Toast.LENGTH_SHORT);
             }
         });
 
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 }
