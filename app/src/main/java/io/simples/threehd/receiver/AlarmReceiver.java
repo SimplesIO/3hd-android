@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
@@ -19,6 +20,8 @@ import io.simples.threehd.R;
 public class AlarmReceiver extends BroadcastReceiver {
 
     private static final int REQUEST_CODE = 0;
+    private static final String REMINDER = "REMINDER";
+    private static final String IS_SCHEDULED = "IS_SCHEDULED";
     private static final int NOTIFICATION_ID = 1;
 
     @Override
@@ -42,5 +45,10 @@ public class AlarmReceiver extends BroadcastReceiver {
         NotificationManager mNotificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
         mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
+
+        SharedPreferences sharedPreferences = context.getApplicationContext().getSharedPreferences(REMINDER, context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean(IS_SCHEDULED, false);
+        editor.commit();
     }
 }
